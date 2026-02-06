@@ -45,10 +45,21 @@ säilyy konfiguraatiomuutoksissaa (kuten ruudun kiertämisessä) ja pystyy säil
 tilan luotettavammin kuin esimerkiksi `remember` -delegaatit yksinään. Tämän ansiosta käyttöliittymää
 voidaan rakentaa uudelleen ilman, että sovelluksen tila katoaa.
 
+## Navigointi Jetpack Composessa
+
+Jetpack Composessa navigoinnilla tarkoitetaan sovelluksen siirtymistä eri näkymien (**Screens**) 
+välillä. Tämän toteutukseen käytetään yleens' `navigation-compose` -kirjastolla, jossa jokaiselle 
+näkymälle määritellään reittinsä (**route**).
+
+**NavController** vastaa navigoinnin hallinnasta. Se huolehtii siitä, mikä näkymä on aktiivinen ja 
+mahdollistaa siirtymisen näkymästä toiseen.
+
+**NavHost** on komponentti, jonka sisälle määritellään navigointirakenne.
+
 ## MVVM ja Navigointi
 
-Soveluksessa MVVM yhdistyy navigointiin siten, että sama tehtävien ViewModel instanssi saadaan 
-käytettyä useissa näkymissä, jolloin tilamuutokset myös vaikuttavat kummassakin. Tässä sovelluksessa
+Soveluksessa MVVM yhdistyy navigointiin siten, että sama ViewModel-instanssi jaetaan useiden näkymien
+käytettäväksi, jolloin tilamuutokset myös vaikuttavat kummassakin. Tässä sovelluksessa
 Home -näkymä esittää näkymät, jossa näitä voi merkata tehtyiksi ja lisätä uusia tehtäviä. Kalenteri 
 -näkymässä tehtävät näkyvät lajiteltuna päivämäärän mukaan. Molemmissa näkymissä tehtäviä on
 mahdollista muokata.
