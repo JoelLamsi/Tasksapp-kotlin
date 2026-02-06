@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home">Hem</string>
+    <string name="calendar">Kalender</string>
+    <string name="settings">Inställningar</string>
+    <string name="tasks">Uppgifter</string>
+</resources>

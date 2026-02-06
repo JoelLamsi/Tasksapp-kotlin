@@ -1,4 +1,4 @@
-package com.example.taskapp.screens
+package com.example.taskapp.ui.screens
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -30,8 +30,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditScreen(onDismiss: () -> Unit,
                onConfirm: (String, String, LocalDate) -> Unit,

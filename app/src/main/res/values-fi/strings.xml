@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home">Koti</string>
+    <string name="calendar">Kalenteri</string>
+    <string name="settings">Asetukset</string>
+    <string name="tasks">Tehtävät</string>
+</resources>

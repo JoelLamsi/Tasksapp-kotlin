@@ -1,9 +1,10 @@
-package com.example.taskapp.screens
+package com.example.taskapp.ui.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -34,14 +35,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.taskapp.R
 import com.example.taskapp.models.Task
 import com.example.taskapp.models.TaskFilter
 import com.example.taskapp.viewmodels.TaskViewModel
-
 
 @Composable
 fun TaskRow(
@@ -96,7 +97,7 @@ fun TaskRow(
 }
 
 @Composable
-fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
+fun HomeScreen(viewModel: TaskViewModel) {
     val tasks by viewModel.tasks.collectAsState()
     var selectedFilter by remember { mutableStateOf(TaskFilter.ALL) }
     var showEditDialog by remember { mutableStateOf(false) }
@@ -125,7 +126,7 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(innerPadding).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(text = "Tasks", style = MaterialTheme.typography.headlineLarge)
+            Text(text = stringResource(R.string.tasks), style = MaterialTheme.typography.headlineLarge)
 
             // Painikkeet valmiiden, keskeneräisten ja kaikkien tehtävien näyttämiseen
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -169,7 +170,9 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
 
             // Tehtävälistan esittäminen
             LazyColumn(modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(bottom = 80.dp)
+            ) {
                 items(items = filteredTasks, key = { it.id }) { task ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),

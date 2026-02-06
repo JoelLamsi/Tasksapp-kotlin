@@ -45,6 +45,14 @@ säilyy konfiguraatiomuutoksissaa (kuten ruudun kiertämisessä) ja pystyy säil
 tilan luotettavammin kuin esimerkiksi `remember` -delegaatit yksinään. Tämän ansiosta käyttöliittymää
 voidaan rakentaa uudelleen ilman, että sovelluksen tila katoaa.
 
+## MVVM ja Navigointi
+
+Soveluksessa MVVM yhdistyy navigointiin siten, että sama tehtävien ViewModel instanssi saadaan 
+käytettyä useissa näkymissä, jolloin tilamuutokset myös vaikuttavat kummassakin. Tässä sovelluksessa
+Home -näkymä esittää näkymät, jossa näitä voi merkata tehtyiksi ja lisätä uusia tehtäviä. Kalenteri 
+-näkymässä tehtävät näkyvät lajiteltuna päivämäärän mukaan. Molemmissa näkymissä tehtäviä on
+mahdollista muokata.
+
 ## StateFlow
 
 Käyttöliittymässä esiintyy usein useita eri tiloja, joita sovelluksen täytyy pystyä seuraamaan ja
