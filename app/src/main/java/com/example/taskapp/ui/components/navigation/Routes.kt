@@ -1,4 +1,4 @@
-package com.example.taskapp.navigation
+package com.example.taskapp.ui.components.navigation
 
 const val ROUTE_HOME = "home"
 const val ROUTE_CALENDAR = "calendar"

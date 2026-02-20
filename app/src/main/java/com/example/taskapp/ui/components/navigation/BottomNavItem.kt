@@ -1,4 +1,4 @@
-package com.example.taskapp.navigation
+package com.example.taskapp.ui.components.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth

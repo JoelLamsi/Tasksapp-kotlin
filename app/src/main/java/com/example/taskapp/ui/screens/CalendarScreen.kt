@@ -9,15 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -28,10 +22,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.taskapp.R
-import com.example.taskapp.models.Task
+import com.example.taskapp.data.local.entity.Task
 import com.example.taskapp.viewmodels.TaskViewModel
 
 @Composable
@@ -50,21 +45,23 @@ fun TaskRow(
                 text = task.title,
                 style = MaterialTheme.typography.bodyLarge,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                textDecoration = if (task.done) TextDecoration.LineThrough else TextDecoration.None
             )
 
             Text(text = task.description,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis)
+                overflow = TextOverflow.Ellipsis,
+                textDecoration = if (task.done) TextDecoration.LineThrough else TextDecoration.None)
         }
     }
 }
 
 @Composable
 fun CalendarScreen(viewModel: TaskViewModel) {
-    val tasks by viewModel.tasks.collectAsState()
+    val tasks by viewModel.allTasks.collectAsState()
     var selectedTask by remember { mutableStateOf<Task?>(null) }
     val groupedByDates = tasks.sortedBy { it.dueDate }.groupBy { it.dueDate ?: "No date" }
     var showEditDialog by remember { mutableStateOf(false) }
@@ -83,7 +80,7 @@ fun CalendarScreen(viewModel: TaskViewModel) {
                     shape = RoundedCornerShape(12.dp),
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
-                    TaskRow(modifier = Modifier.fillMaxWidth(),
+                    TaskRow(modifier = Modifier.fillMaxWidth().padding(8.dp),
                         task = task,
                         onClick = {
                             selectedTask = task
@@ -121,7 +118,7 @@ fun CalendarScreen(viewModel: TaskViewModel) {
                 showEditDialog = false
             },
             onDelete = {
-                viewModel.removeTask(selectedTask!!.id)
+                viewModel.removeTask(selectedTask!!)
                 showEditDialog = false
             })
     }

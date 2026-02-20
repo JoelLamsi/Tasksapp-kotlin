@@ -6,11 +6,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -39,66 +42,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.taskapp.ui.components.TaskRow
 import com.example.taskapp.R
-import com.example.taskapp.models.Task
-import com.example.taskapp.models.TaskFilter
+import com.example.taskapp.data.local.entity.Task
+import com.example.taskapp.data.local.entity.TaskFilter
 import com.example.taskapp.viewmodels.TaskViewModel
 
-@Composable
-fun TaskRow(
-    task: Task,
-    onClick: () -> Unit,
-    onToggleDone: () -> Unit,
-    showDelete: Boolean,
-    onDelete: () -> Unit,
-    modifier: Modifier = Modifier) {
-
-    Row(
-        modifier = modifier.padding(vertical = 4.dp)
-            .clickable { onClick() },
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Checkbox(
-            checked = task.done,
-            onCheckedChange = { onToggleDone() })
-
-        Column(modifier = Modifier.weight(1f).padding(horizontal = 8.dp)) {
-            Text(
-                text = task.title,
-                style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            Text(text = task.description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis)
-        }
-
-        Text(
-            text = task.dueDate.toString(),
-            style = MaterialTheme.typography.labelMedium,
-            modifier = Modifier.padding(horizontal = 8.dp),
-            color = MaterialTheme.colorScheme.secondary
-        )
-
-        if (showDelete) {
-            IconButton(onClick = onDelete) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete task",
-                    tint = MaterialTheme.colorScheme.error
-                )
-            }
-        }
-    }
-}
 
 @Composable
 fun HomeScreen(viewModel: TaskViewModel) {
-    val tasks by viewModel.tasks.collectAsState()
+    val tasks by viewModel.allTasks.collectAsState()
     var selectedFilter by remember { mutableStateOf(TaskFilter.ALL) }
     var showEditDialog by remember { mutableStateOf(false) }
     var selectedTask by remember { mutableStateOf<Task?>(null) }
@@ -125,8 +78,12 @@ fun HomeScreen(viewModel: TaskViewModel) {
     }) { innerPadding ->
         Column(
             modifier = Modifier.fillMaxWidth().padding(innerPadding).padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(text = stringResource(R.string.tasks), style = MaterialTheme.typography.headlineLarge)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.tasks),
+                style = MaterialTheme.typography.headlineLarge
+            )
 
             // Painikkeet valmiiden, keskeneräisten ja kaikkien tehtävien näyttämiseen
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -139,8 +96,10 @@ fun HomeScreen(viewModel: TaskViewModel) {
             }
 
             // Lajittelu & Kytkin tehtävien poistamiselle
-            Row(modifier = Modifier.padding(top = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                modifier = Modifier.padding(top = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 Button(onClick = {
                     if (sortAscending) {
                         viewModel.sortByDueDate(ascending = true)
@@ -152,10 +111,12 @@ fun HomeScreen(viewModel: TaskViewModel) {
                     Text(if (sortAscending) "Sort Ascending" else "Sort Descending")
                 }
 
-                Button(onClick = {
-                    showDeleteButtons = !showDeleteButtons
-                },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)) {
+                Button(
+                    onClick = {
+                        showDeleteButtons = !showDeleteButtons
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                ) {
                     Text(
                         text = "Delete Tasks",
                         style = LocalTextStyle.current.copy(
@@ -164,68 +125,63 @@ fun HomeScreen(viewModel: TaskViewModel) {
                             } else {
                                 TextDecoration.None
                             }
-                        ))
+                        )
+                    )
                 }
             }
 
             // Tehtävälistan esittäminen
-            LazyColumn(modifier = Modifier.fillMaxWidth(),
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(bottom = 80.dp)
             ) {
                 items(items = filteredTasks, key = { it.id }) { task ->
-                    Card(
+                    TaskRow(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-                    ) {
-                        TaskRow(
-                            modifier = Modifier.fillMaxWidth(),
-                            task = task,
-                            onClick = {
-                                selectedTask = task
-                                showEditDialog = true
-                            },
-                            onToggleDone = { viewModel.toggleDone(task.id) },
-                            showDelete = showDeleteButtons,
-                            onDelete = { viewModel.removeTask(task.id) })
-
-                    }
+                        task = task,
+                        onClick = {
+                            selectedTask = task
+                            showEditDialog = true
+                        },
+                        onToggleDone = { viewModel.toggleDone(task) },
+                        onDelete = { viewModel.removeTask(task) },
+                        showDelete = showDeleteButtons
+                    )
                 }
             }
+        }
 
-            if (showEditDialog) {
-                EditScreen(
-                    task = selectedTask,
-                    onDismiss = { showEditDialog = false },
-                    onConfirm = { title, desc, dueDate ->
-                        if (selectedTask != null) {
-                            viewModel.updateTask(
-                                selectedTask!!.copy(
-                                    title = title,
-                                    description = desc,
-                                    dueDate = dueDate
-                                )
+        if (showEditDialog) {
+            EditScreen(
+                task = selectedTask,
+                onDismiss = { showEditDialog = false },
+                onConfirm = { title, desc, dueDate ->
+                    if (selectedTask != null) {
+                        viewModel.updateTask(
+                            selectedTask!!.copy(
+                                title = title,
+                                description = desc,
+                                dueDate = dueDate
                             )
-                        } else {
-                            viewModel.addTask(
-                                Task(
-                                    title = title,
-                                    description = desc,
-                                    priority = 5,
-                                    dueDate = dueDate,
-                                    done = false
-                                )
+                        )
+                    } else {
+                        viewModel.addTask(
+                            Task(
+                                title = title,
+                                description = desc,
+                                priority = 5,
+                                dueDate = dueDate,
+                                done = false
                             )
-                        }
-                        showEditDialog = false
-                    },
-                    onDelete = {
-                        viewModel.removeTask(selectedTask!!.id)
-                        showEditDialog = false
-                    })
-            }
+                        )
+                    }
+                    showEditDialog = false
+                },
+                onDelete = {
+                    viewModel.removeTask(selectedTask!!)
+                    showEditDialog = false
+                })
         }
     }
 }

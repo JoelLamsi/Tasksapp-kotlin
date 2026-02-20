@@ -28,8 +28,6 @@ import com.example.taskapp.R
 
 @Composable
 fun SettingsScreen(isDarkTheme: Boolean, onDarkModeToggle: () -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-
     Column(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
         verticalArrangement = Arrangement.Center
@@ -44,38 +42,5 @@ fun SettingsScreen(isDarkTheme: Boolean, onDarkModeToggle: () -> Unit) {
                 checked = isDarkTheme,
                 onCheckedChange = { onDarkModeToggle() })
         }
-        /*
-        Row(horizontalArrangement = Arrangement.SpaceEvenly) {
-            Text("Language")
-            IconButton(onClick = { expanded = !expanded }) {
-                Icon(Icons.Default.Abc, contentDescription = "Language Menu")
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                DropdownMenuItem(
-                    text = { Text("English") },
-                    onClick = {
-
-                    })
-                DropdownMenuItem(
-                    text = { Text("Finnish") },
-                    onClick = {
-
-                    })
-                DropdownMenuItem(
-                    text = { Text("Swedish") },
-                    onClick = {
-                    })
-                DropdownMenuItem(
-                    text = { Text("Meänkieli") },
-                    onClick = {
-
-                    })
-            }
-
-
-        }*/
     }
 }

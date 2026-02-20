@@ -1,63 +1,60 @@
 package com.example.taskapp.viewmodels
 
 import androidx.lifecycle.ViewModel
-import com.example.taskapp.models.Task
+import androidx.lifecycle.viewModelScope
+import com.example.taskapp.data.local.entity.Task
+import com.example.taskapp.data.repository.TaskRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import java.time.LocalDate
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
-class TaskViewModel : ViewModel() {
-    private val _tasks = MutableStateFlow<List<Task>>(emptyList())
-    val tasks: StateFlow<List<Task>> = _tasks
+class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
 
-    private val _selectedTask = MutableStateFlow<Task?>(null)
-    val selectedTask: StateFlow<Task?> = _selectedTask
+    private val _sortAscending = MutableStateFlow(true)
 
-    init {
-        _tasks.value = listOf(
-            Task( title = "Fysiikan perusteet tietotekniikassa", description = "SI-järjestelmä", priority = 5, dueDate = LocalDate.of(2026, 1, 9), done =  false),
-            Task(title = "Mobiiliohjelmointi natiiviteknologioilla", description = "Kotlin-perusteet", priority = 5, dueDate = LocalDate.of(2026, 1, 15), done = false),
-            Task(title = "Web- ja hybriditeknologiat mobiiliohjelmoinnissa", description = "Tavoitesyke", priority = 5, dueDate = LocalDate.of(2026, 1, 14), done = true),
-            Task(title = "Fysiikan perusteet tietotekniikassa", description = "Kinematiikka", priority = 5, dueDate = LocalDate.of(2026, 1, 14), done = false),
-            Task(title = "Mobiiliohjelmointi natiiviteknologioilla", description = "Käyttöliittymä", priority = 5, dueDate = LocalDate.of(2026, 1, 21), done = false),
-            Task(title = "Web- ja hybriditeknologiat mobiiliohjelmoinnissa", description = "Modal", priority = 5, dueDate = LocalDate.of(2026, 1, 21), done = false)
-        )
-    }
+    val allTasks: StateFlow<List<Task>> = combine(
+        repository.allTasks,
+        _sortAscending
+    ) { tasks, ascending ->
+        if (ascending) {
+            tasks.sortedBy { it.dueDate }
+        } else {
+            tasks.sortedByDescending { it.dueDate }
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
 
     fun addTask(task: Task)  {
-        _tasks.value += task
+        viewModelScope.launch {
+            repository.insert(task)
+        }
     }
 
     fun updateTask(task: Task) {
-        _tasks.value = _tasks.value.map {
-            if (it.id == task.id) task else it
+        viewModelScope.launch {
+            repository.insert(task)
         }
     }
 
-    fun toggleDone(id: String) {
-        _tasks.value = _tasks.value.map {
-            if (it.id == id)
-                it.copy(done = !it.done) else it
+    fun toggleDone(task: Task)  {
+        viewModelScope.launch {
+            repository.updateTaskDoneStatus(task.copy(done = !task.done))
         }
     }
 
-    fun sortByDueDate(ascending: Boolean = true) {
-        _tasks.value = if (ascending) {
-            _tasks.value.sortedBy { it.dueDate }
-        } else {
-            _tasks.value.sortedByDescending { it.dueDate }
+    fun sortByDueDate(ascending: Boolean) {
+        _sortAscending.value = ascending
+    }
+
+    fun removeTask(task: Task) {
+        viewModelScope.launch {
+            repository.deleteTask(task)
         }
-    }
-
-    fun removeTask(id: String) {
-        _tasks.value = _tasks.value.filter { it.id != id }
-    }
-
-    fun selectTask(task: Task) {
-        _selectedTask.value = task
-    }
-
-    fun closeDialog() {
-        _selectedTask.value = null
     }
 }

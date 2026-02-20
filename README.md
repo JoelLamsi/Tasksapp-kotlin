@@ -71,3 +71,59 @@ päivittämään. Lisäksi näitä tilamuutoksia saatetaan tarvita useissa eri n
 `StateFlow` tarjoaa tähän ratkaisun. Se mahdollistaa ajantasaisen ja reaktiivisen tilanhallinnan.
 StateFlow kerätään ja sitodaan käyttöliittymään `collectAsState` -funktiolla, jolloin viimeisin tila
 päivittyy kun UI piirretään uudelleen.
+
+## Mitä Room tekee?
+
+**Room** on abstraktiokerros, joka mahdollistaa SQLite tietokantahallinnan Android sovelluksessa. Kotlin 
+oliot muunnetaan tietokantariveiksi, generoi tarvittavat SQL kyselyt ja mahdollistaa datan reaktiivisen 
+tilahallinnan.
+
+**Entity** vastaa tietokannan taulua, jossa määritetään muunmuassa taulujen avaimet ja kentät.
+
+**DAO (Data Access Obvject)** määritellään SQL-operaatiot kun niitä vastaavia funktioita kutsutaan. 
+Eli varsinainen keskustelu tietokannan kanssa tapahtuu täällä.
+
+**Repository** on välitaso, joka sisältää toimintalogiikan ja jota **ViewModel** kutsuu kun tietokannan
+interaktiolle on tarvetta.
+
+**ViewModel** hallitsee tiloja sekä tarvittaessa säilyttää datan myös konfiguraatiomuutoksissa.
+
+**UI** määrittelee kuinka data näytetään käyttäjälle.
+
+## Projektin rakenne
+
+```
+data/
+└── local/
+├── entity/
+│     └── Task.kt
+├── dao/
+│     └── TaskDao.kt
+├── AppDatabase.kt
+└── repository/
+└── TaskRepository.kt
+ui/
+├── screens/
+└── components/
+viewmodel/
+└── TaskViewModel.kt
+
+```
+
+## Datavirran kulku
+
+Esimerkki datavirran kulusta kun käyttäjä lisää uuden tehtävän listalle:
+
+1. Käyttäjä painaa "Save" Tehtävän lisäys -dialogissa
+2. UI kutsuu ViewModelin ```addTask()``` funktiota parametreina task-olio.
+3. ViewModel kutsuu Repositoryn ```ìnsert()``` funktiota parametrina task-olio.
+4. Repository kutsuu DAO ```insert()``` funktiota
+5. DAO tekee tarvittavan tietokantakyselyn (```UPSERT```-annotaatio mahdollistaa samaisen kutsun tehtävää päivittäessä)
+6. Tietokantaan lisätään uusi rivi tehtävä-tauluun
+
+Näiden jälkeen virta päivittyy, ViewModel havaitsee uuden listan, jolloin Compose havaitsee tilamuutoksen,
+ja lopulta UI päivittyy uuden tehtävän lisättynä.
+
+## Demovideo - viimeisin release
+
+https://youtu.be/UYtgl5__HVA 
